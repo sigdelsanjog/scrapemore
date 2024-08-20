@@ -5,7 +5,7 @@
       <button @click="submitUrl" class="btn btn-primary mt-2">Submit</button>
     </div>
     <!-- Conditionally render UrlTable component -->
-    <UrlTable v-if="showUrlTable" :urls="urls" />
+    <UrlTable v-if="showUrlTable" :urls="urls" :categories="categories" />
   </div>
 </template>
 
@@ -22,6 +22,7 @@ export default {
     return {
       inputUrl: '',
       urls: [],
+      categories: [],
       showUrlTable: false,
     };
   },
@@ -36,7 +37,9 @@ export default {
           url: this.inputUrl,
         });
         this.urls = response.data.urls;
+        this.categories = response.data.categories;
         console.log(this.urls)
+        console.log(this.categories)
         this.showUrlTable = true;  // Show the UrlTable component after data is fetched
       } catch (error) {
         console.error('Error submitting URL:', error);

@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from urllib.parse import urlparse
 
-def extract_categories(urls):
+def extract_unique_categories(urls):
     categories = set()
     for url in urls:
         path = urlparse(url).path

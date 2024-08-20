@@ -1,5 +1,11 @@
 <template>
-   <div class="container mt-5">
+<div class="container mt-5">
+  <div v-if="categories.length">
+    <h2>Categories</h2>
+      <ul>
+        <li v-for="(category, index) in categories" :key="index">{{ category }}</li>
+      </ul>
+  </div>
      <h2>URL Links</h2>
      <table class="table table-striped" v-if="urls.length">
        <thead>
@@ -18,7 +24,8 @@
        </tbody>
      </table>
      <p v-else>No URLs found.</p>
-   </div>
+  </div>
+
  </template>
  
  <script>
@@ -28,6 +35,10 @@
     urls:{
       type: Array,
       required:true,
+    },
+    categories:{
+      type: Array,
+      required: true,
     },
    },
    };
