@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from app.scraper import fetch_links, scrape_content
+from app.scraper import fetch_links, scrape_content, extract_categories
 from app.schemas import UrlResponse, ContentResponse
 
 app = FastAPI()
@@ -22,7 +22,8 @@ class URLRequest(BaseModel):
 async def analyze_url(request: URLRequest):
     try:
         urls = await fetch_links(request.url)
-        return {"urls": urls}
+        categories = extract_categories(urls)
+        return {"urls": urls, "categories": categories}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

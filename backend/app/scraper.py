@@ -6,6 +6,17 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from urllib.parse import urlparse
+
+def extract_categories(urls):
+    categories = set()
+    for url in urls:
+        path = urlparse(url).path
+        segments = path.strip('/').split('/')
+        if segments:
+            categories.add(segments[0].capitalize())
+    return list(categories)
+
 
 async def fetch_links(url: str) -> List[str]:
     options = Options()
