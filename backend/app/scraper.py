@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 
 async def fetch_links(url: str) -> List[str]:
     options = Options()
-    options.headless = True
+    options.add_argument("--headless")  # Run in headless mode
     
     driver = webdriver.Chrome(options=options)
     
