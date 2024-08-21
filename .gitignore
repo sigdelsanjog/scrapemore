@@ -22,6 +22,7 @@ pnpm-debug.log*
 
 # python files
 /venv
+/backend/*
 backend/venv/
 __pycache__
 *.pyc

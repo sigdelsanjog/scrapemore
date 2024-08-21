@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from urllib.parse import urlparse
+from webdriver_manager.chrome import ChromeDriverManager
 
 def extract_unique_categories(urls):
     categories = set()
@@ -17,13 +18,16 @@ def extract_unique_categories(urls):
             categories.add(segments[0].capitalize())
     return list(categories)
 
-
 async def fetch_links(url: str) -> List[str]:
     options = Options()
     options.add_argument("--headless")  # Run in headless mode
-    
+    options.add_argument("--no-sandbox")  # Disable sandboxing for headless environments
+    options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
+
+    # Set up ChromeDriver
+    # service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(options=options)
-    
+
     driver.get(url)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     links = set(a.get('href') for a in soup.find_all('a', href=True))
