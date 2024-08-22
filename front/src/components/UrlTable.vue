@@ -10,9 +10,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(category, index) in categories" :key="index">
-            <td>{{ category.category }}</td>
-            <td><a :href="category.link" target="_blank">{{ category.link }}</a></td>
+          <tr v-for="(categoryObj, index) in categories" :key="index">
+            <td>{{ categoryObj.category }}</td>
+            <td><a :href="categoryObj.link" target="_blank">{{ categoryObj.link }}</a></td>
           </tr>
         </tbody>
       </table>
@@ -50,34 +50,13 @@ export default {
         type: Array,
         required:true,
       },
-    },
-  data() {
-    return {
-      categories: []
-    };
-  },
-  methods: {
-    async fetchCategories() {
-      try {
-        const response = await fetch("http://localhost:8000/analyze", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            url: "https://example.com",
-            domain: "https://thequickblog.com"
-          })
-        });
-        const data = await response.json();
-        this.categories = data.categories;
-      } catch (error) {
-        console.error("Error fetching categories:", error);
+      categories:{
+        type: Array,
+        required: true
       }
-    }
-  },
+    },
   mounted() {
-    this.fetchCategories();
+    // this.fetchCategories();
   }
 };
 </script>
