@@ -68,7 +68,7 @@ export default {
     parsedCategories() {
       // Ensure data is handled safely to avoid undefined errors
       return this.urls?.map(url => ({
-        category: url.category?.replace(/^Category:\s*/, '') || 'Unknown Category',
+        category: url.category || 'Unknown Category',
         url: url.url || 'Unknown URL', // Fallback in case of missing URL
       })) || []; // Default to an empty array if urls is not defined
     },
@@ -76,10 +76,10 @@ export default {
   methods: {
     downloadCSV() {
       const csvContent = this.urls
-        ?.map((url, index) => `${index + 1},${url.url}`)
+        ?.map((url, index) => `${index + 1},${url.category},${url.url}`)
         .join('\n');
       const blob = new Blob(
-        [`# URL List\nIndex,URL\n${csvContent}`],
+        [`Index,URL\n${csvContent}`],
         { type: 'text/csv;charset=utf-8;' }
       );
       saveAs(blob, 'unique_links.csv');
