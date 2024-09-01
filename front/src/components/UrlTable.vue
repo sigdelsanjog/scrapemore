@@ -68,7 +68,7 @@ export default {
     parsedCategories() {
       // Ensure data is handled safely to avoid undefined errors
       return this.urls?.map(url => ({
-        category: url.category || 'Unknown Category', // Fallback in case of missing category
+        category: url.category?.replace(/^Category:\s*/, '') || 'Unknown Category',
         url: url.url || 'Unknown URL', // Fallback in case of missing URL
       })) || []; // Default to an empty array if urls is not defined
     },
