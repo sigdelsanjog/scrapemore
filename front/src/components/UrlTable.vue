@@ -11,6 +11,9 @@
           <button class="btn btn-primary btn-sm" @click="downloadCSV">
             Download CSV
           </button>
+          <button class="btn btn-secondary btn-sm" @click="scrapeAllUrls">
+            Scrape All URLs
+          </button>
           <b-button
             v-b-toggle.collapse-urls
             variant="link"
@@ -49,6 +52,7 @@
 
 <script>
 import { saveAs } from 'file-saver';
+import axios from 'axios'; // Make sure axios is installed and configured
 
 export default {
   name: 'UrlTable',
@@ -67,10 +71,12 @@ export default {
     // Compute and parse categories to group and render correctly
     parsedCategories() {
       // Ensure data is handled safely to avoid undefined errors
-      return this.urls?.map(url => ({
-        category: url.category || 'Unknown Category',
-        url: url.url || 'Unknown URL', // Fallback in case of missing URL
-      })) || []; // Default to an empty array if urls is not defined
+      return (
+        this.urls?.map((url) => ({
+          category: url.category || 'Unknown Category',
+          url: url.url || 'Unknown URL', // Fallback in case of missing URL
+        })) || []
+      ); // Default to an empty array if urls is not defined
     },
   },
   methods: {
@@ -78,11 +84,26 @@ export default {
       const csvContent = this.urls
         ?.map((url, index) => `${index + 1},${url.category},${url.url}`)
         .join('\n');
-      const blob = new Blob(
-        [`Index,URL\n${csvContent}`],
-        { type: 'text/csv;charset=utf-8;' }
-      );
+      const blob = new Blob([`Index,Category,URL\n${csvContent}`], {
+        type: 'text/csv;charset=utf-8;',
+      });
       saveAs(blob, 'unique_links.csv');
+    },
+    async scrapeAllUrls() {
+      try {
+        const response = await axios.post('/scrape-all-urls', {
+          urls: this.urls.map((url) => url.url),
+        });
+
+        // Trigger file download upon successful scraping
+        const blob = new Blob([JSON.stringify(response.data)], {
+          type: 'application/json;charset=utf-8;',
+        });
+        saveAs(blob, 'output.json');
+      } catch (error) {
+        console.error('Error scraping URLs:', error);
+        alert('Failed to scrape URLs. Please try again.');
+      }
     },
   },
 };
