@@ -1,5 +1,14 @@
 <template>
   <div class="container mt-5">
+    <!-- Loading spinner -->
+    <div v-if="isLoading" class="text-center mb-3">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">/_\</span>
+      </div>
+      <p>Scraping contents within the category is in progress</p>
+    </div>
+
+    <!-- Main content -->
     <div v-if="parsedCategories.length">
       <h2>Identified Sub-Pages in Your URLs:</h2>
       <b-card-header
@@ -8,10 +17,10 @@
       >
         <span>The system retrieved a total of {{ urls?.length || 0 }} URLs.</span>
         <div>
-          <button class="btn btn-primary btn-sm" @click="downloadCSV">
+          <button class="btn btn-primary btn-sm" @click="downloadCSV" :disabled="isScraping">
             Download CSV
           </button>
-          <button class="btn btn-success btn-sm ml-2" @click="scrapeAllUrls">
+          <button class="btn btn-success btn-sm ml-2" @click="scrapeAllUrls" :disabled="isScraping">
             Scrape All URLs
           </button>
           <b-button
@@ -23,6 +32,7 @@
           </b-button>
         </div>
       </b-card-header>
+
       <!-- Display the table with Category and URL -->
       <table class="table table-striped">
         <thead>
@@ -42,7 +52,7 @@
               <a :href="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a>
             </td>
             <td>
-              <button class="btn btn-info btn-sm" @click="scrapeUrlContent(item.url)">
+              <button class="btn btn-info btn-sm" @click="scrapeUrlContent(item.url)" :disabled="isScraping">
                 Scrape Content
               </button>
             </td>
@@ -70,6 +80,8 @@ export default {
   data() {
     return {
       isCollapsed: true, // Track collapse state
+      isLoading: false, // Track loading state
+      isScraping: false, // Track scraping state to disable buttons
     };
   },
   computed: {
@@ -94,44 +106,53 @@ export default {
       saveAs(blob, 'unique_links.csv');
     },
     async scrapeAllUrls() {
-    try {
-      const response = await fetch('http://localhost:8000/scrape-all-urls/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ urls: this.urls }),
-      });
+      this.isScraping = true; // Disable buttons and show loading spinner
+      this.isLoading = true; // Show the loading spinner
+      try {
+        const response = await fetch('http://localhost:8000/scrape-all-urls/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ urls: this.urls }),
+        });
 
-      if (!response.ok) throw new Error('Network response was not ok.');
+        if (!response.ok) throw new Error('Network response was not ok.');
 
-      const blob = await response.blob();
-      const filename = 'output.json';
-      saveAs(blob, filename);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  },
-  
+        const blob = await response.blob();
+        const filename = 'output.json';
+        saveAs(blob, filename);
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        this.isScraping = false; // Enable buttons after scraping
+        this.isLoading = false; // Hide the loading spinner
+      }
+    },
     async scrapeUrlContent(url) {
-    try {
-      const response = await fetch('http://localhost:8000/scrape-unique-links-in-categories/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ urls: [url] }),  // Send only the specific URL
-      });
+      this.isScraping = true; // Disable buttons and show loading spinner
+      this.isLoading = true; // Show the loading spinner
+      try {
+        const response = await fetch('http://localhost:8000/scrape-unique-links-in-categories/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ urls: [url] }),  // Send only the specific URL
+        });
 
-      if (!response.ok) throw new Error('Network response was not ok.');
+        if (!response.ok) throw new Error('Network response was not ok.');
 
-      const blob = await response.blob();
-      const filename = 'scraped_content.json';
-      saveAs(blob, filename);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  },
+        const blob = await response.blob();
+        const filename = 'scraped_content.json';
+        saveAs(blob, filename);
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        this.isScraping = false; // Enable buttons after scraping
+        this.isLoading = false; // Hide the loading spinner
+      }
+    },
   },
 };
 </script>
@@ -154,5 +175,17 @@ export default {
 
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: #f9f9f9;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.4em;
+}
+
+.spinner-border-sm {
+  width: 2rem;
+  height: 2rem;
+  border-width: 0.3em;
 }
 </style>
