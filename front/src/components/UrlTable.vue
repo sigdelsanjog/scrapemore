@@ -38,7 +38,9 @@
             <td>{{ index + 1 }}</td>
             <td>{{ item.category }}</td>
             <td>
-              <a :href="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a>
+              <a :href="item.url" target="_blank" rel="noopener noreferrer">{{
+                item.url
+              }}</a>
             </td>
           </tr>
         </tbody>
@@ -51,11 +53,11 @@
 </template>
 
 <script>
-import { saveAs } from 'file-saver';
-import axios from 'axios'; // Make sure axios is installed and configured
+import { saveAs } from "file-saver";
+import axios from "axios"; // Ensure axios is installed and imported
 
 export default {
-  name: 'UrlTable',
+  name: "UrlTable",
   props: {
     urls: {
       type: Array,
@@ -73,8 +75,8 @@ export default {
       // Ensure data is handled safely to avoid undefined errors
       return (
         this.urls?.map((url) => ({
-          category: url.category || 'Unknown Category',
-          url: url.url || 'Unknown URL', // Fallback in case of missing URL
+          category: url.category || "Unknown Category",
+          url: url.url || "Unknown URL", // Fallback in case of missing URL
         })) || []
       ); // Default to an empty array if urls is not defined
     },
@@ -83,28 +85,33 @@ export default {
     downloadCSV() {
       const csvContent = this.urls
         ?.map((url, index) => `${index + 1},${url.category},${url.url}`)
-        .join('\n');
+        .join("\n");
       const blob = new Blob([`Index,Category,URL\n${csvContent}`], {
-        type: 'text/csv;charset=utf-8;',
+        type: "text/csv;charset=utf-8;",
       });
-      saveAs(blob, 'unique_links.csv');
+      saveAs(blob, "unique_links.csv");
     },
     async scrapeAllUrls() {
-      try {
-        const response = await axios.post('/scrape-all-urls', {
-          urls: this.urls.map((url) => url.url),
-        });
+    try {
+      // Sending POST request to the correct backend endpoint with expected payload format
+      const response = await axios.post("http://localhost:8000/scrape-all-urls/", {
+        urls: this.urls.map((item) => item.url), // Assuming the backend expects { "urls": ["url1", "url2"] }
+      });
 
-        // Trigger file download upon successful scraping
-        const blob = new Blob([JSON.stringify(response.data)], {
-          type: 'application/json;charset=utf-8;',
-        });
-        saveAs(blob, 'output.json');
-      } catch (error) {
-        console.error('Error scraping URLs:', error);
-        alert('Failed to scrape URLs. Please try again.');
-      }
-    },
+      // Trigger file download upon successful scraping
+      const blob = new Blob([JSON.stringify(response.data)], {
+        type: "application/json;charset=utf-8;",
+      });
+      saveAs(blob, "output.json");
+    } catch (error) {
+      console.error("Error scraping URLs:", error);
+      console.log("Failed to scrape URLs. Please try again.");
+    }
+  },
   },
 };
 </script>
+
+<style scoped>
+/* Add your styles here */
+</style>
